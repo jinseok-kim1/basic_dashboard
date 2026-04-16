@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>패션뷰티탭 최상단배너 · 수동콘텐츠 비딩 신청</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f4f6f9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px}
+.card{background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.09);width:100%;max-width:680px;overflow:hidden}
+.header{background:linear-gradient(135deg,#03C75A,#00a84c);color:white;padding:28px 32px}
+.header h1{font-size:18px;font-weight:700;margin-bottom:6px}
+.header p{font-size:12.5px;opacity:.85;line-height:1.6}
+.notice{background:#fffde7;border-left:4px solid #f9a825;padding:12px 16px;font-size:12px;color:#5c4e00;margin:0 32px;margin-top:20px;border-radius:6px;line-height:1.6}
+form{padding:24px 32px 32px}
+.section-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #f0f0f0}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:#333;margin-bottom:5px}
+.field label .req{color:#e53935;margin-left:2px}
+.field label .hint{font-size:10.5px;color:#aaa;font-weight:400;margin-left:6px}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;
+  font-size:13px;font-family:inherit;color:#222;transition:border-color .15s;
+  background:white;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#03C75A;box-shadow:0 0 0 3px rgba(3,199,90,.1)}
+.date-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.date-row span{text-align:center;color:#999;font-size:13px;font-weight:500}
+.radio-group{display:flex;gap:10px}
+.radio-group label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-weight:500;color:#444;transition:all .15s;flex:1;justify-content:center}
+.radio-group input[type=radio]{display:none}
+.radio-group input[type=radio]:checked + span{color:inherit}
+.radio-group label:has(input:checked){border-color:#03C75A;background:#f0fdf4;color:#00a84c;font-weight:700}
+.radio-group label.x-opt:has(input:checked){border-color:#e53935;background:#fff5f5;color:#e53935}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.amount-wrap{position:relative}
+.amount-wrap input{padding-right:28px}
+.amount-wrap span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:12px}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+.submit-btn{width:100%;background:linear-gradient(135deg,#03C75A,#00a84c);color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .1s,box-shadow .1s;box-shadow:0 3px 12px rgba(3,199,90,.35)}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(3,199,90,.4)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{background:#ccc;box-shadow:none;cursor:not-allowed;transform:none}
+.success{display:none;text-align:center;padding:40px 32px}
+.success .icon{font-size:52px;margin-bottom:12px}
+.success h2{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+.success p{font-size:13px;color:#888;line-height:1.7}
+.error-msg{display:none;background:#fff5f5;border:1.5px solid #ffcdd2;border-radius:8px;padding:12px;color:#c62828;font-size:12.5px;margin-top:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <h1>📋 패션뷰티탭 비딩 신청</h1>
+    <p>최상단 홈배너 · 수동콘텐츠 노출 희망 일정을 입력해주세요.<br>제출 내역은 담당 MD에게만 공유되며 다른 브랜드에는 노출되지 않습니다.</p>
+  </div>
+
+  <div class="notice" id="tokenNotice" style="display:none">
+    ⚠️ <b>설정 필요</b>: form.html 상단의 <code>GITHUB_TOKEN</code>을 발급받은 토큰으로 교체해주세요.
+  </div>
+
+  <form id="bidForm">
+
+    <div style="padding:0 0;margin:0 0">
+
+    <div class="section-title" style="margin:20px 32px 10px">📅 일정 정보</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>노출 희망일 <span class="req">*</span> <span class="hint">MM/DD 형식</span></label>
+        <input type="text" id="exposeDate" placeholder="예: 04/15" pattern="\d{2}/\d{2}" required>
+      </div>
+      <div class="field">
+        <label>프로모션 전체 일정 <span class="req">*</span></label>
+        <div class="date-row">
+          <input type="text" id="promoStart" placeholder="MM/DD" pattern="\d{2}/\d{2}" required>
+          <span>~</span>
+          <input type="text" id="promoEnd" placeholder="MM/DD" pattern="\d{2}/\d{2}" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin:20px 32px 10px">📍 신청 정보</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>영역 <span class="req">*</span></label>
+        <select id="area" required>
+          <option value="">선택해주세요</option>
+          <option value="최상단홈배너">최상단홈배너</option>
+          <option value="수동콘텐츠">수동콘텐츠</option>
+          <option value="최상단홈배너+수동콘텐츠">최상단홈배너 + 수동콘텐츠</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>사업부 팀 <span class="req">*</span></label>
+          <input type="text" id="team" placeholder="예: 베이직패션사업팀" required>
+        </div>
+        <div class="field">
+          <label>담당자명 <span class="req">*</span></label>
+          <input type="text" id="manager" placeholder="이름 입력" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>우선 순위 <span class="req">*</span> <span class="hint">담당자별 순위별 1개씩</span></label>
+        <input type="number" id="priority" min="1" max="10" placeholder="1" required>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin:20px 32px 10px">🏷️ 행사 유형</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>S급 전사 행사 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="sGrade" value="O" required><span>O</span></label>
+          <label class="x-opt"><input type="radio" name="sGrade" value="X"><span>X</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>그룹사 위크 / 사업 내부 연합 행사 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="groupWeek" value="O" required><span>O</span></label>
+          <label class="x-opt"><input type="radio" name="groupWeek" value="X"><span>X</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>단일 브랜드 행사 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="singleBrand" value="O" required><span>O</span></label>
+          <label class="x-opt"><input type="radio" name="singleBrand" value="X"><span>X</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin:20px 32px 10px">💼 브랜드 정보</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>브랜드명 + 프로모션 타이틀 <span class="req">*</span></label>
+        <input type="text" id="brandTitle" placeholder="예: 닥스 네이버 FW 단독 특가" required>
+      </div>
+      <div class="field">
+        <label>예상 목표 거래액 <span class="req">*</span> <span class="hint">숫자만 입력 (원)</span></label>
+        <div class="amount-wrap">
+          <input type="number" id="targetAmount" min="0" step="1000000" placeholder="100000000" required>
+          <span>원</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>비고 <span class="hint">선택사항</span></label>
+        <textarea id="remark" placeholder="추가 전달사항이 있으면 입력해주세요"></textarea>
+      </div>
+    </div>
+
+    </div>
+
+    <div style="padding:0 32px">
+      <button type="submit" class="submit-btn" id="submitBtn">제출하기</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+  </form>
+
+  <div class="success" id="successView">
+    <div class="icon">✅</div>
+    <h2>신청이 완료되었습니다!</h2>
+    <p>담당 MD에게 신청 내역이 전달되었습니다.<br>검토 후 별도 안내드릴 예정입니다.<br><br><span style="color:#bbb;font-size:11px">제출 시각: <span id="submitTime"></span></span></p>
+  </div>
+</div>
+
+<p style="margin-top:16px;font-size:11px;color:#bbb">본 페이지는 담당 MD만 접근 가능한 내부 취합 시스템입니다.</p>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ⚙️  설정 — 아래 토큰을 발급받은 PAT로 교체하세요
+// ═══════════════════════════════════════════════════
+const GITHUB_TOKEN  = 'YOUR_GITHUB_TOKEN_HERE';  // ← 교체 필요
+const GITHUB_OWNER  = 'jinseok-kim1';
+const GITHUB_REPO   = 'basic_dashboard';
+const ISSUE_LABEL   = '비딩신청';
+const API_BASE      = 'https://api.github.com';
+// ═══════════════════════════════════════════════════
+
+if(GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE'){
+  document.getElementById('tokenNotice').style.display = 'block';
+}
+
+function getRadio(name){
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+function fmtAmount(n){
+  const num = parseInt(n);
+  if(isNaN(num)) return '-';
+  return num.toLocaleString('ko-KR') + '원';
+}
+
+document.getElementById('bidForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  // 필수 라디오 체크
+  if(!getRadio('sGrade') || !getRadio('groupWeek') || !getRadio('singleBrand')){
+    const err = document.getElementById('errorMsg');
+    err.textContent = '행사 유형 항목(O/X)을 모두 선택해주세요.';
+    err.style.display = 'block';
+    return;
+  }
+  document.getElementById('errorMsg').style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  const now = new Date();
+  const submittedAt = now.toLocaleString('ko-KR');
+  const data = {
+    노출희망일:        document.getElementById('exposeDate').value,
+    프로모션일정:      document.getElementById('promoStart').value + ' ~ ' + document.getElementById('promoEnd').value,
+    영역:              document.getElementById('area').value,
+    우선순위:          document.getElementById('priority').value,
+    사업부팀:          document.getElementById('team').value,
+    담당자명:          document.getElementById('manager').value,
+    S급전사행사:       getRadio('sGrade'),
+    그룹사위크연합:    getRadio('groupWeek'),
+    단일브랜드행사:    getRadio('singleBrand'),
+    브랜드명타이틀:    document.getElementById('brandTitle').value,
+    예상목표거래액:    document.getElementById('targetAmount').value,
+    비고:              document.getElementById('remark').value,
+    제출시각:          submittedAt,
+  };
+
+  const issueTitle = `[비딩신청] ${data.브랜드명타이틀} — ${data.노출희망일}`;
+  const issueBody = [
+    `| 항목 | 내용 |`,
+    `|---|---|`,
+    `| 노출 희망일 | ${data.노출희망일} |`,
+    `| 프로모션 전체 일정 | ${data.프로모션일정} |`,
+    `| 영역 | ${data.영역} |`,
+    `| 우선 순위 | ${data.우선순위} |`,
+    `| 사업부 팀 | ${data.사업부팀} |`,
+    `| 담당자명 | ${data.담당자명} |`,
+    `| S급 전사 행사 | ${data.S급전사행사} |`,
+    `| 그룹사 위크/사업 내부 연합 행사 | ${data.그룹사위크연합} |`,
+    `| 단일 브랜드 행사 | ${data.단일브랜드행사} |`,
+    `| 브랜드명 + 프로모션 타이틀 | ${data.브랜드명타이틀} |`,
+    `| 예상 목표 거래액 | ${fmtAmount(data.예상목표거래액)} |`,
+    `| 비고 | ${data.비고 || '-'} |`,
+    ``,
+    `> 제출 시각: ${data.제출시각}`,
+  ].join('\n');
+
+  try {
+    // 라벨 자동 생성 (없으면)
+    await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/labels`, {
+      method:'POST',
+      headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
+      body: JSON.stringify({name: ISSUE_LABEL, color:'00a84c', description:'비딩 신청 폼 제출'})
+    });
+
+    const res = await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'token ' + GITHUB_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title: issueTitle, body: issueBody, labels: [ISSUE_LABEL] })
+    });
+
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.message || '제출 실패');
+    }
+
+    document.getElementById('bidForm').style.display = 'none';
+    document.getElementById('successView').style.display = 'block';
+    document.getElementById('submitTime').textContent = submittedAt;
+
+  } catch(err){
+    const errEl = document.getElementById('errorMsg');
+    errEl.textContent = '제출 중 오류가 발생했습니다: ' + err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '제출하기';
+  }
+});
+</script>
+</body>
+</html>

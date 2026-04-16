@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>취합 관리자 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min-height:100vh}
+/* ── 비밀번호 화면 */
+.pw-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a237e,#0d47a1)}
+.pw-card{background:white;border-radius:20px;padding:40px 36px;width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.pw-card h1{font-size:20px;font-weight:700;margin-bottom:6px;color:#1a1a2e}
+.pw-card p{font-size:12.5px;color:#999;margin-bottom:24px}
+.pw-card input{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:11px 14px;font-size:14px;text-align:center;letter-spacing:3px;margin-bottom:12px}
+.pw-card input:focus{outline:none;border-color:#1565c0}
+.pw-card button{width:100%;background:linear-gradient(135deg,#1565c0,#0d47a1);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer}
+.pw-card .err{color:#e53935;font-size:12px;margin-top:8px;display:none}
+/* ── 설정 화면 */
+.setup-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:#f0f2f5}
+.setup-card{background:white;border-radius:16px;padding:36px;width:460px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.setup-card h2{font-size:16px;font-weight:700;margin-bottom:8px}
+.setup-card p{font-size:12.5px;color:#666;margin-bottom:20px;line-height:1.7}
+.setup-card input{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px;font-family:monospace}
+.setup-card input:focus{outline:none;border-color:#1565c0}
+.setup-card button{width:100%;background:#1565c0;color:white;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer}
+/* ── 메인 */
+.main{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:linear-gradient(135deg,#1565c0,#0d47a1);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:16px;font-weight:700}
+.topbar .badge{font-size:11px;opacity:.8}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.refresh-btn,.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
+.container{padding:18px 24px;flex:1}
+/* ── 탭 */
+.tabs{display:flex;gap:0;margin-bottom:16px;background:white;border-radius:10px;padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tab-btn{flex:1;padding:9px;border:none;background:transparent;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600;color:#888;font-family:inherit;transition:all .15s}
+.tab-btn.active{background:#1565c0;color:white}
+/* ── 필터 */
+.filter-row{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.filter-row input,.filter-row select{border:1.5px solid #e0e0e0;border-radius:7px;padding:7px 10px;font-size:12.5px;font-family:inherit;background:white}
+.filter-row input:focus,.filter-row select:focus{outline:none;border-color:#1565c0}
+.export-btn{margin-left:auto;background:#00897b;color:white;border:none;border-radius:7px;padding:8px 18px;font-size:12.5px;font-weight:700;cursor:pointer}
+.export-btn:hover{background:#00796b}
+/* ── 카드 헤더 */
+.card{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.card-header .cnt{font-size:12px;color:#888}
+/* ── 테이블 */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{background:#f8f9fa;font-size:10.5px;font-weight:700;color:#555;padding:8px 10px;text-align:left;border-bottom:2px solid #eee;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{background:#eef2ff;color:#1565c0}
+th.sorted{color:#1565c0}
+td{padding:8px 10px;font-size:12px;border-bottom:1px solid #f5f5f5;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:#f0f7ff}
+tr:last-child td{border-bottom:none}
+.badge-label{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700}
+.badge-green{background:#e8f5e9;color:#2e7d32}
+.badge-blue{background:#e3f2fd;color:#1565c0}
+.badge-o{background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.badge-x{background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.loading{text-align:center;padding:40px;color:#aaa;font-size:14px}
+.empty{text-align:center;padding:40px;color:#ccc;font-size:13px}
+.detail-btn{background:#e3f2fd;border:none;color:#1565c0;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer}
+/* ── 상세 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center}
+.modal-bg.open{display:flex}
+.modal{background:white;border-radius:14px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.modal-header{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1}
+.modal-body{padding:16px 20px}
+.modal-body table{min-width:unset}
+.modal-body td:first-child{color:#888;font-weight:600;width:150px;white-space:normal}
+.modal-body td:last-child{max-width:unset;white-space:normal;word-break:break-all}
+</style>
+</head>
+<body>
+
+<!-- 비밀번호 화면 -->
+<div class="pw-screen" id="pwScreen">
+  <div class="pw-card">
+    <div style="font-size:36px;margin-bottom:12px">🔒</div>
+    <h1>관리자 로그인</h1>
+    <p>취합 데이터 조회는 담당 MD만 가능합니다</p>
+    <input type="password" id="pwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()">확인</button>
+    <div class="err" id="pwErr">비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- GitHub 토큰 설정 화면 -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-card">
+    <div style="font-size:32px;margin-bottom:12px">⚙️</div>
+    <h2>GitHub 토큰 설정</h2>
+    <p>처음 1회만 입력하면 이 브라우저에 저장됩니다.<br>read 권한이 있는 Personal Access Token을 입력하세요.<br><span style="color:#e53935;font-size:11px">※ 토큰은 이 기기에만 저장되며 외부로 전송되지 않습니다.</span></p>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx 또는 oss.navercorp.com PAT">
+    <button onclick="saveToken()">저장하고 시작</button>
+  </div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">상세 보기</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- 메인 -->
+<div class="main" id="mainView">
+  <div class="topbar">
+    <div>
+      <h1>📋 취합 관리자 대시보드</h1>
+      <div class="badge">베이직패션사업팀 · 비딩신청 &amp; 오늘끝딜</div>
+    </div>
+    <div class="topbar-right">
+      <button class="refresh-btn" onclick="loadAll()">🔄 새로고침</button>
+      <button class="logout-btn" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab0" onclick="switchTab(0)">📋 비딩 신청</button>
+      <button class="tab-btn" id="tab1" onclick="switchTab(1)">⚡ 오늘끝딜 / 내일도착</button>
+    </div>
+
+    <!-- 비딩 탭 -->
+    <div id="panel0">
+      <div class="filter-row">
+        <input type="text" id="bidSearch" placeholder="🔍 검색 (브랜드명, 담당자 등)" oninput="renderBid()" style="width:220px">
+        <select id="bidArea" onchange="renderBid()">
+          <option value="">전체 영역</option>
+          <option>최상단홈배너</option>
+          <option>수동콘텐츠</option>
+          <option>최상단홈배너+수동콘텐츠</option>
+        </select>
+        <button class="export-btn" onclick="exportBid()">⬇️ 엑셀 다운로드</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <b>비딩 신청 목록</b>
+          <span class="cnt" id="bidCnt">—</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th onclick="sortBid('number')">#</th>
+              <th onclick="sortBid('노출희망일')">노출 희망일</th>
+              <th onclick="sortBid('프로모션일정')">프로모션 일정</th>
+              <th onclick="sortBid('영역')">영역</th>
+              <th onclick="sortBid('우선순위')">순위</th>
+              <th onclick="sortBid('사업부팀')">사업부 팀</th>
+              <th onclick="sortBid('담당자명')">담당자</th>
+              <th>S급</th>
+              <th>그룹사/연합</th>
+              <th>단일</th>
+              <th onclick="sortBid('브랜드명타이틀')">브랜드명 + 타이틀</th>
+              <th onclick="sortBid('예상목표거래액')">목표 거래액</th>
+              <th>비고</th>
+              <th onclick="sortBid('제출시각')">제출 시각</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="bidBody"><tr><td colspan="15" class="loading">불러오는 중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 오늘끝딜 탭 -->
+    <div id="panel1" style="display:none">
+      <div class="filter-row">
+        <input type="text" id="dealSearch" placeholder="🔍 검색 (스토어명, 상품명 등)" oninput="renderDeal()" style="width:220px">
+        <select id="dealType" onchange="renderDeal()">
+          <option value="">전체 유형</option>
+          <option>오늘끝딜</option>
+          <option>내일도착</option>
+        </select>
+        <button class="export-btn" onclick="exportDeal()">⬇️ 엑셀 다운로드</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <b>오늘끝딜 / 내일도착 신청 목록</b>
+          <span class="cnt" id="dealCnt">—</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th>
+              <th>편성 유형</th>
+              <th>희망일자</th>
+              <th>사업/팀</th>
+              <th>매니저</th>
+              <th>스토어명</th>
+              <th>상품명</th>
+              <th>최초가</th>
+              <th>최종혜택가</th>
+              <th>N쿠폰</th>
+              <th>브랜드쿠폰</th>
+              <th>적립</th>
+              <th>한정수량</th>
+              <th>제출 시각</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="dealBody"><tr><td colspan="15" class="loading">불러오는 중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// ⚙️  설정
+// ═══════════════════════════════════
+const ADMIN_PASSWORD = 'md1234';   // ← 원하는 비밀번호로 변경
+const GITHUB_OWNER   = 'jinseok-kim1';
+const GITHUB_REPO    = 'basic_dashboard';
+const API_BASE       = 'https://api.github.com';
+// ═══════════════════════════════════
+
+let ghToken = '';
+let bidData = [], dealData = [];
+let bidSort = {key:'number', asc:false};
+let dealSort = {key:'number', asc:false};
+let curTab = 0;
+
+// ── 비밀번호 확인
+function checkPw(){
+  const v = document.getElementById('pwInput').value;
+  if(v === ADMIN_PASSWORD){
+    document.getElementById('pwScreen').style.display='none';
+    ghToken = localStorage.getItem('gh_admin_token')||'';
+    if(!ghToken){
+      document.getElementById('setupScreen').style.display='flex';
+    } else {
+      showMain();
+    }
+  } else {
+    document.getElementById('pwErr').style.display='block';
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
+
+function saveToken(){
+  const t = document.getElementById('tokenInput').value.trim();
+  if(!t){ alert('토큰을 입력해주세요.'); return; }
+  localStorage.setItem('gh_admin_token', t);
+  ghToken = t;
+  document.getElementById('setupScreen').style.display='none';
+  showMain();
+}
+
+function showMain(){
+  document.getElementById('mainView').style.display='flex';
+  loadAll();
+}
+
+function logout(){
+  if(confirm('로그아웃하시겠어요? 저장된 토큰도 삭제됩니다.')){
+    localStorage.removeItem('gh_admin_token');
+    location.reload();
+  }
+}
+
+// ── 탭 전환
+function switchTab(n){
+  curTab = n;
+  [0,1].forEach(i=>{
+    document.getElementById('tab'+i).classList.toggle('active', i===n);
+    document.getElementById('panel'+i).style.display = i===n?'block':'none';
+  });
+}
+
+// ── GitHub Issues 불러오기
+async function fetchIssues(label){
+  let all=[], page=1;
+  while(true){
+    const res = await fetch(
+      `${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?labels=${encodeURIComponent(label)}&state=open&per_page=100&page=${page}`,
+      {headers:{'Authorization':'token '+ghToken}}
+    );
+    if(!res.ok) throw new Error('GitHub API 오류: '+res.status);
+    const data = await res.json();
+    if(!data.length) break;
+    all = all.concat(data);
+    if(data.length < 100) break;
+    page++;
+  }
+  return all;
+}
+
+// ── Issue body 파싱
+function parseTable(body){
+  const obj={};
+  const lines = body.split('\n');
+  for(const line of lines){
+    const m = line.match(/^\|\s*(.+?)\s*\|\s*(.+?)\s*\|$/);
+    if(m && m[1]!=='항목' && m[1]!=='---'){
+      obj[m[1].trim()] = m[2].trim();
+    }
+  }
+  // 추천사유 파싱 (별도 섹션)
+  const commentMatch = body.match(/### 추천 사유\n([\s\S]*?)(?:\n>|\n###|$)/);
+  if(commentMatch) obj['추천사유'] = commentMatch[1].trim();
+  // 제출시각
+  const timeMatch = body.match(/> 제출 시각: (.+)/);
+  if(timeMatch) obj['제출시각'] = timeMatch[1];
+  return obj;
+}
+
+async function loadAll(){
+  try{
+    const [bidIssues, dealIssues] = await Promise.all([
+      fetchIssues('비딩신청'), fetchIssues('오늘끝딜')
+    ]);
+    bidData  = bidIssues.map((iss,i) => ({number:iss.number, ...parseTable(iss.body), _raw:iss}));
+    dealData = dealIssues.map((iss,i) => ({number:iss.number, ...parseTable(iss.body), _raw:iss}));
+    renderBid(); renderDeal();
+  }catch(e){
+    document.getElementById('bidBody').innerHTML=`<tr><td colspan="15" style="text-align:center;color:#e53935;padding:30px">오류: ${e.message}</td></tr>`;
+  }
+}
+
+// ── 비딩 렌더
+function renderBid(){
+  const q = document.getElementById('bidSearch').value.toLowerCase();
+  const area = document.getElementById('bidArea').value;
+  let rows = bidData.filter(r=>{
+    const text = JSON.stringify(r).toLowerCase();
+    return (!q||text.includes(q)) && (!area||(r['영역']||'').includes(area));
+  });
+  // 정렬
+  rows.sort((a,b)=>{
+    let av=a[bidSort.key]||'', bv=b[bidSort.key]||'';
+    if(!isNaN(+av)&&!isNaN(+bv)){av=+av;bv=+bv;}
+    return bidSort.asc ? (av>bv?1:-1) : (av<bv?1:-1);
+  });
+  document.getElementById('bidCnt').textContent = `총 ${rows.length}건`;
+  if(!rows.length){
+    document.getElementById('bidBody').innerHTML='<tr><td colspan="15" class="empty">신청 내역이 없습니다</td></tr>'; return;
+  }
+  const ox = v => v==='O'?'<span class="badge-o">O</span>':'<span class="badge-x">X</span>';
+  const won = v => {const n=parseInt((v||'').replace(/[,원]/g,'')); return isNaN(n)?'-':n.toLocaleString('ko-KR')+'원';};
+  document.getElementById('bidBody').innerHTML = rows.map((r,i)=>`
+    <tr>
+      <td style="color:#aaa">${i+1}</td>
+      <td><b>${r['노출 희망일']||r['노출희망일']||'-'}</b></td>
+      <td>${r['프로모션 전체 일정']||r['프로모션일정']||'-'}</td>
+      <td><span class="badge-label badge-blue">${r['영역']||'-'}</span></td>
+      <td style="text-align:center">${r['우선 순위']||r['우선순위']||'-'}</td>
+      <td>${r['사업부 팀']||r['사업부팀']||'-'}</td>
+      <td>${r['담당자명']||'-'}</td>
+      <td>${ox(r['S급 전사 행사']||r['S급전사행사'])}</td>
+      <td>${ox(r['그룹사 위크/사업 내부 연합 행사']||r['그룹사위크연합'])}</td>
+      <td>${ox(r['단일 브랜드 행사']||r['단일브랜드행사'])}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis"><b>${r['브랜드명 + 프로모션 타이틀']||r['브랜드명타이틀']||'-'}</b></td>
+      <td style="text-align:right">${won(r['예상 목표 거래액']||r['예상목표거래액'])}</td>
+      <td style="color:#888">${r['비고']||'-'}</td>
+      <td style="color:#aaa;font-size:11px">${r['제출시각']||'-'}</td>
+      <td><button class="detail-btn" onclick='showDetail(${JSON.stringify(r).replace(/'/g,"&#39;")})'>상세</button></td>
+    </tr>`).join('');
+}
+
+function sortBid(key){ if(bidSort.key===key) bidSort.asc=!bidSort.asc; else{bidSort.key=key;bidSort.asc=true;} renderBid(); }
+
+// ── 오늘끝딜 렌더
+function renderDeal(){
+  const q = document.getElementById('dealSearch').value.toLowerCase();
+  const type = document.getElementById('dealType').value;
+  let rows = dealData.filter(r=>{
+    const text = JSON.stringify(r).toLowerCase();
+    return (!q||text.includes(q)) && (!type||(r['편성 유형']||r['편성유형']||'').includes(type));
+  });
+  rows.sort((a,b)=>{
+    let av=a[dealSort.key]||'', bv=b[dealSort.key]||'';
+    if(!isNaN(+av)&&!isNaN(+bv)){av=+av;bv=+bv;}
+    return dealSort.asc ? (av>bv?1:-1) : (av<bv?1:-1);
+  });
+  document.getElementById('dealCnt').textContent = `총 ${rows.length}건`;
+  if(!rows.length){
+    document.getElementById('dealBody').innerHTML='<tr><td colspan="15" class="empty">신청 내역이 없습니다</td></tr>'; return;
+  }
+  const won = v => {const n=parseInt((v||'').replace(/[,원]/g,'')); return isNaN(n)||n===0?'-':n.toLocaleString('ko-KR')+'원';};
+  const pct = v => {const n=parseFloat(v); return isNaN(n)||n===0?'-':n+'%';};
+  document.getElementById('dealBody').innerHTML = rows.map((r,i)=>`
+    <tr>
+      <td style="color:#aaa">${i+1}</td>
+      <td><span class="badge-label badge-blue">${r['편성 유형']||r['편성유형']||'-'}</span></td>
+      <td><b>${r['희망일자']||'-'}</b></td>
+      <td style="font-size:11px">${r['사업']||'-'} / ${r['팀']||'-'}</td>
+      <td>${r['매니저']||'-'}</td>
+      <td>${r['스토어명']||'-'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${r['상품명']||'-'}</td>
+      <td style="text-align:right">${won(r['최초가'])}</td>
+      <td style="text-align:right;font-weight:700;color:#1565c0">${won(r['최종혜택가'])}</td>
+      <td style="text-align:center">${pct(r['네이버 쿠폰']||r['네이버쿠폰'])}</td>
+      <td style="text-align:center">${pct(r['브랜드사 쿠폰']||r['브랜드사쿠폰'])}</td>
+      <td style="text-align:center">${pct(r['적립'])}</td>
+      <td style="text-align:center">${r['한정수량']||r['한정수량 / 재고수량']||'-'}</td>
+      <td style="color:#aaa;font-size:11px">${r['제출시각']||'-'}</td>
+      <td><button class="detail-btn" onclick='showDetail(${JSON.stringify(r).replace(/'/g,"&#39;")})'>상세</button></td>
+    </tr>`).join('');
+}
+
+// ── 상세 모달
+function showDetail(r){
+  document.getElementById('modalTitle').textContent = r['브랜드명타이틀']||r['브랜드명 + 프로모션 타이틀']||r['상품명']||'상세 보기';
+  const rows = Object.entries(r).filter(([k])=>k!=='_raw'&&k!=='number');
+  document.getElementById('modalBody').innerHTML = `<table>${rows.map(([k,v])=>`<tr><td>${k}</td><td>${v||'-'}</td></tr>`).join('')}</table>`;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+
+// ── 엑셀 내보내기
+function exportBid(){
+  const q=document.getElementById('bidSearch').value.toLowerCase();
+  const area=document.getElementById('bidArea').value;
+  const rows = bidData.filter(r=>{
+    const t=JSON.stringify(r).toLowerCase();
+    return (!q||t.includes(q))&&(!area||(r['영역']||'').includes(area));
+  });
+  const headers=['NO','노출희망일','프로모션일정','영역','우선순위','사업부팀','담당자명','S급전사행사','그룹사위크연합','단일브랜드행사','브랜드명+타이틀','예상목표거래액','비고','제출시각'];
+  const wsData = [headers, ...rows.map((r,i)=>[
+    i+1,
+    r['노출 희망일']||r['노출희망일']||'',
+    r['프로모션 전체 일정']||r['프로모션일정']||'',
+    r['영역']||'',
+    r['우선 순위']||r['우선순위']||'',
+    r['사업부 팀']||r['사업부팀']||'',
+    r['담당자명']||'',
+    r['S급 전사 행사']||r['S급전사행사']||'',
+    r['그룹사 위크/사업 내부 연합 행사']||r['그룹사위크연합']||'',
+    r['단일 브랜드 행사']||r['단일브랜드행사']||'',
+    r['브랜드명 + 프로모션 타이틀']||r['브랜드명타이틀']||'',
+    parseInt((r['예상 목표 거래액']||r['예상목표거래액']||'0').replace(/[,원]/g,''))||0,
+    r['비고']||'',
+    r['제출시각']||'',
+  ])];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), '비딩신청');
+  XLSX.writeFile(wb, `비딩신청_취합_${new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'')}.xlsx`);
+}
+
+function exportDeal(){
+  const q=document.getElementById('dealSearch').value.toLowerCase();
+  const type=document.getElementById('dealType').value;
+  const rows = dealData.filter(r=>{
+    const t=JSON.stringify(r).toLowerCase();
+    return (!q||t.includes(q))&&(!type||(r['편성 유형']||r['편성유형']||'').includes(type));
+  });
+  const headers=['NO','편성유형','희망일자','종료일자','사업','팀','매니저','스토어명','스토어ID','상품번호','상품명','상품링크','최초가','현재판매가','즉시할인가','최종혜택가','네이버쿠폰(%)','브랜드사쿠폰(%)','적립(%)','한정수량','담당자','이메일','핫라인','추천사유','제출시각'];
+  const wsData = [headers, ...rows.map((r,i)=>[
+    i+1,
+    r['편성 유형']||r['편성유형']||'',
+    r['희망일자']||'',r['종료일자']||'',
+    r['사업']||'',r['팀']||'',r['매니저']||'',
+    r['스토어명']||'',r['스토어ID']||r['스토어 ID']||'',
+    r['상품번호']||'',r['상품명']||'',r['상품링크']||'',
+    parseInt((r['최초가']||'0').replace(/[,원]/g,''))||0,
+    parseInt((r['현재판매가']||'0').replace(/[,원]/g,''))||0,
+    parseInt((r['즉시할인가']||'0').replace(/[,원]/g,''))||0,
+    parseInt((r['최종혜택가']||'0').replace(/[,원]/g,''))||0,
+    parseFloat(r['네이버 쿠폰']||r['네이버쿠폰']||0),
+    parseFloat(r['브랜드사 쿠폰']||r['브랜드사쿠폰']||0),
+    parseFloat(r['적립']||0),
+    r['한정수량']||r['한정수량 / 재고수량']||'',
+    r['담당자']||'',r['이메일']||'',r['핫라인']||'',
+    r['추천사유']||'',r['제출시각']||'',
+  ])];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), '오늘끝딜');
+  XLSX.writeFile(wb, `오늘끝딜_취합_${new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'')}.xlsx`);
+}
+</script>
+</body>
+</html>

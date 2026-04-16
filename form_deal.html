@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘끝딜 / 내일도착 상품 신청</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f4f6f9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px}
+.card{background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.09);width:100%;max-width:700px;overflow:hidden}
+.header{background:linear-gradient(135deg,#1565c0,#0d47a1);color:white;padding:28px 32px}
+.header h1{font-size:18px;font-weight:700;margin-bottom:6px}
+.header p{font-size:12.5px;opacity:.85;line-height:1.6}
+.notice{background:#fffde7;border-left:4px solid #f9a825;padding:12px 16px;font-size:12px;color:#5c4e00;margin:0 32px;margin-top:20px;border-radius:6px;line-height:1.6}
+.info-box{background:#e3f2fd;border-left:4px solid #1565c0;padding:12px 16px;font-size:12px;color:#0d3b6e;margin:0 32px;margin-top:16px;border-radius:6px;line-height:1.7}
+form{padding:24px 32px 32px}
+.section-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #f0f0f0}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:#333;margin-bottom:5px}
+.field label .req{color:#e53935;margin-left:2px}
+.field label .hint{font-size:10.5px;color:#aaa;font-weight:400;margin-left:6px}
+input[type=text],input[type=number],input[type=url],input[type=email],input[type=tel],select,textarea{
+  width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;
+  font-size:13px;font-family:inherit;color:#222;transition:border-color .15s;background:white;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1565c0;box-shadow:0 0 0 3px rgba(21,101,192,.1)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.radio-group{display:flex;gap:8px}
+.radio-group label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:9px 20px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-weight:600;color:#444;transition:all .15s;flex:1;justify-content:center}
+.radio-group input[type=radio]{display:none}
+.radio-group label:has(input:checked){border-color:#1565c0;background:#e8f0fe;color:#1565c0}
+.pct-wrap{position:relative}
+.pct-wrap input{padding-right:28px}
+.pct-wrap span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:12px}
+.won-wrap{position:relative}
+.won-wrap input{padding-right:28px}
+.won-wrap span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:12px}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+.submit-btn{width:100%;background:linear-gradient(135deg,#1565c0,#0d47a1);color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .1s,box-shadow .1s;box-shadow:0 3px 12px rgba(21,101,192,.35)}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(21,101,192,.4)}
+.submit-btn:disabled{background:#ccc;box-shadow:none;cursor:not-allowed;transform:none}
+.success{display:none;text-align:center;padding:40px 32px}
+.success .icon{font-size:52px;margin-bottom:12px}
+.success h2{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+.success p{font-size:13px;color:#888;line-height:1.7}
+.error-msg{display:none;background:#fff5f5;border:1.5px solid #ffcdd2;border-radius:8px;padding:12px;color:#c62828;font-size:12.5px;margin-top:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <h1>⚡ 오늘끝딜 / 내일도착 상품 신청</h1>
+    <p>편성 희망 상품 정보를 입력해주세요.<br>내일도착 편성은 <b>N배송 상품만</b> 신청 가능합니다.</p>
+  </div>
+
+  <div class="notice" id="tokenNotice" style="display:none">
+    ⚠️ <b>설정 필요</b>: form_deal.html 상단의 <code>GITHUB_TOKEN</code>을 발급받은 토큰으로 교체해주세요.
+  </div>
+
+  <div class="info-box">
+    💡 제출 내역은 담당 MD에게만 공유되며, 다른 업체에는 노출되지 않습니다.
+  </div>
+
+  <form id="dealForm">
+    <div style="padding:0 0">
+
+    <!-- 편성 유형 -->
+    <div class="section-title" style="margin:20px 32px 10px">⚡ 편성 유형</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>편성 유형 <span class="req">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="dealType" value="오늘끝딜" required><span>오늘끝딜</span></label>
+          <label><input type="radio" name="dealType" value="내일도착"><span>내일도착 (N배송 전용)</span></label>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>희망일자 <span class="req">*</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="startDate" placeholder="MM/DD 또는 날짜무관" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>종료일자 <span class="req">*</span></label>
+          <input type="text" id="endDate" placeholder="MM/DD 또는 날짜무관" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- 소싱주체 -->
+    <div class="section-title" style="margin:20px 32px 10px">👤 소싱주체</div>
+    <div style="padding:0 32px">
+      <div class="grid-3">
+        <div class="field">
+          <label>사업 <span class="req">*</span></label>
+          <select id="bizUnit" required>
+            <option value="">선택</option>
+            <option value="트렌드패션">트렌드패션</option>
+            <option value="베이직패션">베이직패션</option>
+            <option value="스포츠아웃도어">스포츠아웃도어</option>
+            <option value="럭셔리패션">럭셔리패션</option>
+            <option value="뷰티">뷰티</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>팀 <span class="req">*</span></label>
+          <input type="text" id="team" placeholder="예: 베이직패션사업팀" required>
+        </div>
+        <div class="field">
+          <label>매니저 <span class="req">*</span></label>
+          <input type="text" id="manager" placeholder="이름" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- 업체 정보 -->
+    <div class="section-title" style="margin:20px 32px 10px">🏪 업체 정보</div>
+    <div style="padding:0 32px">
+      <div class="grid-2">
+        <div class="field">
+          <label>스토어명 <span class="req">*</span></label>
+          <input type="text" id="storeName" placeholder="예: 룰루렐라" required>
+        </div>
+        <div class="field">
+          <label>스토어 ID <span class="req">*</span></label>
+          <input type="text" id="storeId" placeholder="예: ncp_1ooc7x_01" required>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="field">
+          <label>담당자</label>
+          <input type="text" id="contactPerson" placeholder="이름">
+        </div>
+        <div class="field">
+          <label>이메일</label>
+          <input type="email" id="contactEmail" placeholder="example@domain.com">
+        </div>
+        <div class="field">
+          <label>핫라인</label>
+          <input type="tel" id="contactPhone" placeholder="010-0000-0000">
+        </div>
+      </div>
+    </div>
+
+    <!-- 취합 정보 (상품) -->
+    <div class="section-title" style="margin:20px 32px 10px">📦 취합 정보 (상품)</div>
+    <div style="padding:0 32px">
+      <div class="grid-2">
+        <div class="field">
+          <label>상품번호 <span class="req">*</span></label>
+          <input type="text" id="productNo" placeholder="예: 13075048758" required>
+        </div>
+        <div class="field">
+          <label>상품링크 <span class="req">*</span></label>
+          <input type="url" id="productLink" placeholder="https://smartstore.naver.com/..." required>
+        </div>
+      </div>
+      <div class="field">
+        <label>상품명 <span class="req">*</span></label>
+        <input type="text" id="productName" placeholder="상품명 전체 입력" required>
+      </div>
+      <div class="grid-4">
+        <div class="field">
+          <label>최초가 <span class="req">*</span></label>
+          <div class="won-wrap">
+            <input type="number" id="origPrice" min="0" placeholder="13900" required>
+            <span>원</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>현재판매가 <span class="req">*</span></label>
+          <div class="won-wrap">
+            <input type="number" id="currPrice" min="0" placeholder="13900" required>
+            <span>원</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>즉시할인가 <span class="req">*</span></label>
+          <div class="won-wrap">
+            <input type="number" id="discPrice" min="0" placeholder="7900" required>
+            <span>원</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>최종혜택가 <span class="req">*</span></label>
+          <div class="won-wrap">
+            <input type="number" id="finalPrice" min="0" placeholder="7110" required>
+            <span>원</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>한정수량 / 재고수량</label>
+        <input type="number" id="stockQty" min="0" placeholder="수량 입력 (선택)">
+      </div>
+    </div>
+
+    <!-- 혜택 설계 -->
+    <div class="section-title" style="margin:20px 32px 10px">🎁 혜택 설계</div>
+    <div style="padding:0 32px">
+      <div class="grid-3">
+        <div class="field">
+          <label>네이버 쿠폰 <span class="hint">% 숫자만</span></label>
+          <div class="pct-wrap">
+            <input type="number" id="naverCoupon" min="0" max="100" step="1" placeholder="예: 5">
+            <span>%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>브랜드사 쿠폰 <span class="hint">% 숫자만</span></label>
+          <div class="pct-wrap">
+            <input type="number" id="brandCoupon" min="0" max="100" step="1" placeholder="예: 10">
+            <span>%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>적립 <span class="hint">% 숫자만</span></label>
+          <div class="pct-wrap">
+            <input type="number" id="pointRate" min="0" max="100" step="1" placeholder="예: 10">
+            <span>%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 추천 사유 -->
+    <div class="section-title" style="margin:20px 32px 10px">💬 코멘트</div>
+    <div style="padding:0 32px">
+      <div class="field">
+        <label>추천 사유 <span class="hint">선택사항 — 가격 메리트, 레퍼런스, 특이사항 등</span></label>
+        <textarea id="comment" placeholder="예: 가격 메리트, 리뷰 좋음, 타채널 동일 구성 행사 시 3천만원 레퍼 있음"></textarea>
+      </div>
+    </div>
+
+    </div>
+
+    <div style="padding:0 32px">
+      <button type="submit" class="submit-btn" id="submitBtn">신청 제출하기</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </form>
+
+  <div class="success" id="successView">
+    <div class="icon">✅</div>
+    <h2>신청이 완료되었습니다!</h2>
+    <p>담당 MD에게 상품 정보가 전달되었습니다.<br>검토 후 별도 안내드릴 예정입니다.<br><br><span style="color:#bbb;font-size:11px">제출 시각: <span id="submitTime"></span></span></p>
+  </div>
+</div>
+
+<p style="margin-top:16px;font-size:11px;color:#bbb">본 페이지는 담당 MD만 접근 가능한 내부 취합 시스템입니다.</p>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ⚙️  설정 — 아래 토큰을 발급받은 PAT로 교체하세요
+// ═══════════════════════════════════════════════════
+const GITHUB_TOKEN  = 'YOUR_GITHUB_TOKEN_HERE';  // ← 교체 필요
+const GITHUB_OWNER  = 'jinseok-kim1';
+const GITHUB_REPO   = 'basic_dashboard';
+const ISSUE_LABEL   = '오늘끝딜';
+const API_BASE      = 'https://api.github.com';
+// ═══════════════════════════════════════════════════
+
+if(GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE'){
+  document.getElementById('tokenNotice').style.display = 'block';
+}
+
+function getRadio(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:''; }
+function won(n){ const v=parseInt(n); return isNaN(v)?'-':v.toLocaleString('ko-KR')+'원'; }
+function pct(n){ const v=parseFloat(n); return isNaN(v)||v===0?'-':v+'%'; }
+
+document.getElementById('dealForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(!getRadio('dealType')){
+    const err=document.getElementById('errorMsg');
+    err.textContent='편성 유형(오늘끝딜/내일도착)을 선택해주세요.';
+    err.style.display='block'; return;
+  }
+  document.getElementById('errorMsg').style.display='none';
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='제출 중...';
+
+  const now=new Date(); const submittedAt=now.toLocaleString('ko-KR');
+  const data={
+    편성유형:     getRadio('dealType'),
+    희망일자:     document.getElementById('startDate').value,
+    종료일자:     document.getElementById('endDate').value,
+    사업:         document.getElementById('bizUnit').value,
+    팀:           document.getElementById('team').value,
+    매니저:       document.getElementById('manager').value,
+    스토어명:     document.getElementById('storeName').value,
+    스토어ID:     document.getElementById('storeId').value,
+    상품번호:     document.getElementById('productNo').value,
+    상품명:       document.getElementById('productName').value,
+    상품링크:     document.getElementById('productLink').value,
+    최초가:       document.getElementById('origPrice').value,
+    현재판매가:   document.getElementById('currPrice').value,
+    즉시할인가:   document.getElementById('discPrice').value,
+    최종혜택가:   document.getElementById('finalPrice').value,
+    네이버쿠폰:   document.getElementById('naverCoupon').value,
+    브랜드사쿠폰: document.getElementById('brandCoupon').value,
+    적립:         document.getElementById('pointRate').value,
+    한정수량:     document.getElementById('stockQty').value,
+    담당자:       document.getElementById('contactPerson').value,
+    이메일:       document.getElementById('contactEmail').value,
+    핫라인:       document.getElementById('contactPhone').value,
+    추천사유:     document.getElementById('comment').value,
+    제출시각:     submittedAt,
+  };
+
+  const issueTitle=`[오늘끝딜] ${data.스토어명} - ${data.상품명.substring(0,30)} (${data.희망일자})`;
+  const issueBody=[
+    `### 편성 정보`,
+    `| 항목 | 내용 |`,`|---|---|`,
+    `| 편성 유형 | ${data.편성유형} |`,
+    `| 희망일자 | ${data.희망일자} |`,
+    `| 종료일자 | ${data.종료일자} |`,
+    ``,`### 소싱주체`,
+    `| 사업 | 팀 | 매니저 |`,`|---|---|---|`,
+    `| ${data.사업} | ${data.팀} | ${data.매니저} |`,
+    ``,`### 업체 정보`,
+    `| 스토어명 | 스토어ID | 담당자 | 이메일 | 핫라인 |`,`|---|---|---|---|---|`,
+    `| ${data.스토어명} | ${data.스토어ID} | ${data.담당자||'-'} | ${data.이메일||'-'} | ${data.핫라인||'-'} |`,
+    ``,`### 상품 정보`,
+    `| 항목 | 내용 |`,`|---|---|`,
+    `| 상품번호 | ${data.상품번호} |`,
+    `| 상품명 | ${data.상품명} |`,
+    `| 상품링크 | ${data.상품링크} |`,
+    `| 최초가 | ${won(data.최초가)} |`,
+    `| 현재판매가 | ${won(data.현재판매가)} |`,
+    `| 즉시할인가 | ${won(data.즉시할인가)} |`,
+    `| 최종혜택가 | ${won(data.최종혜택가)} |`,
+    `| 한정수량 | ${data.한정수량||'-'} |`,
+    ``,`### 혜택 설계`,
+    `| 네이버쿠폰 | 브랜드사쿠폰 | 적립 |`,`|---|---|---|`,
+    `| ${pct(data.네이버쿠폰)} | ${pct(data.브랜드사쿠폰)} | ${pct(data.적립)} |`,
+    ``,`### 추천 사유`,
+    data.추천사유||'(없음)',
+    ``,`> 제출 시각: ${data.제출시각}`,
+  ].join('\n');
+
+  try{
+    await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/labels`,{
+      method:'POST',headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({name:ISSUE_LABEL,color:'1565c0',description:'오늘끝딜 신청'})
+    });
+    const res=await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues`,{
+      method:'POST',
+      headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({title:issueTitle,body:issueBody,labels:[ISSUE_LABEL]})
+    });
+    if(!res.ok){ const err=await res.json(); throw new Error(err.message||'제출 실패'); }
+    document.getElementById('dealForm').style.display='none';
+    document.getElementById('successView').style.display='block';
+    document.getElementById('submitTime').textContent=submittedAt;
+  }catch(err){
+    const errEl=document.getElementById('errorMsg');
+    errEl.textContent='제출 중 오류가 발생했습니다: '+err.message;
+    errEl.style.display='block'; btn.disabled=false; btn.textContent='신청 제출하기';
+  }
+});
+</script>
+</body>
+</html>
