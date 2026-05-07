@@ -67,15 +67,22 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
     <div class="section-title" style="margin:20px 32px 10px">📅 일정 정보</div>
     <div style="padding:0 32px">
       <div class="field">
-        <label>노출 희망일 <span class="req">*</span> <span class="hint">MM/DD 형식</span></label>
-        <input type="text" id="exposeDate" placeholder="예: 04/15" pattern="\d{2}/\d{2}" required>
+        <label>노출 희망일 <span class="req">*</span> <span class="hint">날짜 선택 필수 · 일자 무관 시 아래 체크</span></label>
+        <div class="date-row">
+          <input type="date" id="exposeStart" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
+          <span>~</span>
+          <input type="date" id="exposeEnd" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:#888;font-weight:400;cursor:pointer">
+          <input type="checkbox" id="exposeAny" style="width:auto;margin:0"> 일자 무관 — 전체 일정(6/1~6/30) 선택
+        </label>
       </div>
       <div class="field">
         <label>프로모션 전체 일정 <span class="req">*</span></label>
         <div class="date-row">
-          <input type="text" id="promoStart" placeholder="MM/DD" pattern="\d{2}/\d{2}" required>
+          <input type="date" id="promoStart" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
           <span>~</span>
-          <input type="text" id="promoEnd" placeholder="MM/DD" pattern="\d{2}/\d{2}" required>
+          <input type="date" id="promoEnd" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
         </div>
       </div>
     </div>
@@ -86,49 +93,40 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
         <label>영역 <span class="req">*</span></label>
         <select id="area" required>
           <option value="">선택해주세요</option>
+          <option value="최상단홈배너+수동콘텐츠">최상단홈배너 + 수동콘텐츠</option>
           <option value="최상단홈배너">최상단홈배너</option>
           <option value="수동콘텐츠">수동콘텐츠</option>
-          <option value="최상단홈배너+수동콘텐츠">최상단홈배너 + 수동콘텐츠</option>
         </select>
       </div>
       <div class="grid-2">
         <div class="field">
           <label>사업부 팀 <span class="req">*</span></label>
-          <input type="text" id="team" placeholder="예: 베이직패션사업팀" required>
+          <div style="border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:#222;background:#f7f7f7">베이직패션사업팀</div>
+          <input type="hidden" id="team" value="베이직패션사업팀">
         </div>
         <div class="field">
           <label>담당자명 <span class="req">*</span></label>
-          <input type="text" id="manager" placeholder="이름 입력" required>
+          <select id="manager" required>
+            <option value="">선택해주세요</option>
+            <option value="김진석">김진석</option>
+            <option value="홍주리">홍주리</option>
+            <option value="유리나">유리나</option>
+            <option value="김성희">김성희</option>
+          </select>
         </div>
       </div>
       <div class="field">
-        <label>우선 순위 <span class="req">*</span> <span class="hint">담당자별 순위별 1개씩</span></label>
-        <input type="number" id="priority" min="1" max="10" placeholder="1" required>
+        <label>우선 순위 <span class="req">*</span> <span class="hint">빈칸 제출 불가 — 미입력 시 취합X</span></label>
+        <input type="number" id="priority" min="1" max="10" placeholder="취합X — 숫자를 입력해주세요 (1~10)" style="background:#f7f7f7;color:#999" required>
       </div>
     </div>
 
     <div class="section-title" style="margin:20px 32px 10px">🏷️ 행사 유형</div>
     <div style="padding:0 32px">
       <div class="field">
-        <label>S급 전사 행사 <span class="req">*</span></label>
-        <div class="radio-group">
-          <label><input type="radio" name="sGrade" value="O" required><span>O</span></label>
-          <label class="x-opt"><input type="radio" name="sGrade" value="X"><span>X</span></label>
-        </div>
-      </div>
-      <div class="field">
-        <label>그룹사 위크 / 사업 내부 연합 행사 <span class="req">*</span></label>
-        <div class="radio-group">
-          <label><input type="radio" name="groupWeek" value="O" required><span>O</span></label>
-          <label class="x-opt"><input type="radio" name="groupWeek" value="X"><span>X</span></label>
-        </div>
-      </div>
-      <div class="field">
-        <label>단일 브랜드 행사 <span class="req">*</span></label>
-        <div class="radio-group">
-          <label><input type="radio" name="singleBrand" value="O" required><span>O</span></label>
-          <label class="x-opt"><input type="radio" name="singleBrand" value="X"><span>X</span></label>
-        </div>
+        <label>단일 브랜드 행사</label>
+        <div style="border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:700;color:#00a84c;background:#f0fdf4;display:inline-block;min-width:60px;text-align:center">O</div>
+        <input type="hidden" name="singleBrand" value="O">
       </div>
     </div>
 
@@ -147,7 +145,7 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
       </div>
       <div class="field">
         <label>비고 <span class="hint">선택사항</span></label>
-        <textarea id="remark" placeholder="추가 전달사항이 있으면 입력해주세요"></textarea>
+        <textarea id="remark" placeholder="예: SA/DA광고, 메타광고, 상품출시 이슈, 네이버 단독가, 단독상품, 출시 이슈 등"></textarea>
       </div>
     </div>
 
@@ -170,15 +168,11 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
 <p style="margin-top:16px;font-size:11px;color:#bbb">본 페이지는 담당 MD만 접근 가능한 내부 취합 시스템입니다.</p>
 
 <script>
-// ═══════════════════════════════════════════════════
-// ⚙️  설정 — 아래 토큰을 발급받은 PAT로 교체하세요
-// ═══════════════════════════════════════════════════
 const GITHUB_TOKEN  = window.location.hash.slice(1) || '';
 const GITHUB_OWNER  = 'jinseok-kim1';
 const GITHUB_REPO   = 'form_submissions';
 const ISSUE_LABEL   = '비딩신청';
 const API_BASE      = 'https://api.github.com';
-// ═══════════════════════════════════════════════════
 
 if(GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE'){
   document.getElementById('tokenNotice').style.display = 'block';
@@ -187,6 +181,19 @@ if(GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE'){
 function getRadio(name){
   const el = document.querySelector(`input[name="${name}"]:checked`);
   return el ? el.value : '';
+}
+
+document.getElementById('exposeAny').addEventListener('change',function(){
+  const s=document.getElementById('exposeStart');
+  const e=document.getElementById('exposeEnd');
+  if(this.checked){s.value='2026-06-01';e.value='2026-06-30';s.disabled=true;e.disabled=true;}
+  else{s.disabled=false;e.disabled=false;}
+});
+
+function fmtDate(v){
+  if(!v) return '';
+  const [y,m,d] = v.split('-');
+  return m+'/'+d;
 }
 
 function fmtAmount(n){
@@ -198,13 +205,6 @@ function fmtAmount(n){
 document.getElementById('bidForm').addEventListener('submit', async function(e){
   e.preventDefault();
 
-  // 필수 라디오 체크
-  if(!getRadio('sGrade') || !getRadio('groupWeek') || !getRadio('singleBrand')){
-    const err = document.getElementById('errorMsg');
-    err.textContent = '행사 유형 항목(O/X)을 모두 선택해주세요.';
-    err.style.display = 'block';
-    return;
-  }
   document.getElementById('errorMsg').style.display = 'none';
 
   const btn = document.getElementById('submitBtn');
@@ -214,15 +214,13 @@ document.getElementById('bidForm').addEventListener('submit', async function(e){
   const now = new Date();
   const submittedAt = now.toLocaleString('ko-KR');
   const data = {
-    노출희망일:        document.getElementById('exposeDate').value,
-    프로모션일정:      document.getElementById('promoStart').value + ' ~ ' + document.getElementById('promoEnd').value,
+    노출희망일:        fmtDate(document.getElementById('exposeStart').value) + ' ~ ' + fmtDate(document.getElementById('exposeEnd').value),
+    프로모션일정:      fmtDate(document.getElementById('promoStart').value) + ' ~ ' + fmtDate(document.getElementById('promoEnd').value),
     영역:              document.getElementById('area').value,
     우선순위:          document.getElementById('priority').value,
     사업부팀:          document.getElementById('team').value,
     담당자명:          document.getElementById('manager').value,
-    S급전사행사:       getRadio('sGrade'),
-    그룹사위크연합:    getRadio('groupWeek'),
-    단일브랜드행사:    getRadio('singleBrand'),
+    단일브랜드행사:    'O',
     브랜드명타이틀:    document.getElementById('brandTitle').value,
     예상목표거래액:    document.getElementById('targetAmount').value,
     비고:              document.getElementById('remark').value,
@@ -239,8 +237,6 @@ document.getElementById('bidForm').addEventListener('submit', async function(e){
     `| 우선 순위 | ${data.우선순위} |`,
     `| 사업부 팀 | ${data.사업부팀} |`,
     `| 담당자명 | ${data.담당자명} |`,
-    `| S급 전사 행사 | ${data.S급전사행사} |`,
-    `| 그룹사 위크/사업 내부 연합 행사 | ${data.그룹사위크연합} |`,
     `| 단일 브랜드 행사 | ${data.단일브랜드행사} |`,
     `| 브랜드명 + 프로모션 타이틀 | ${data.브랜드명타이틀} |`,
     `| 예상 목표 거래액 | ${fmtAmount(data.예상목표거래액)} |`,
@@ -250,7 +246,6 @@ document.getElementById('bidForm').addEventListener('submit', async function(e){
   ].join('\n');
 
   try {
-    // 라벨 자동 생성 (없으면)
     await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/labels`, {
       method:'POST',
       headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
