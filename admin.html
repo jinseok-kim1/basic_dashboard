@@ -8,7 +8,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min-height:100vh}
-/* ── 비밀번호 화면 */
 .pw-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#03C75A,#00a84c)}
 .pw-card{background:white;border-radius:20px;padding:40px 36px;width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25)}
 .pw-card h1{font-size:20px;font-weight:700;margin-bottom:6px;color:#1a1a2e}
@@ -17,7 +16,6 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min
 .pw-card input:focus{outline:none;border-color:#03C75A}
 .pw-card button{width:100%;background:linear-gradient(135deg,#03C75A,#00a84c);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer}
 .pw-card .err{color:#e53935;font-size:12px;margin-top:8px;display:none}
-/* ── 설정 화면 */
 .setup-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:#f0f2f5}
 .setup-card{background:white;border-radius:16px;padding:36px;width:460px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
 .setup-card h2{font-size:16px;font-weight:700;margin-bottom:8px}
@@ -25,7 +23,6 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min
 .setup-card input{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px;font-family:monospace}
 .setup-card input:focus{outline:none;border-color:#03C75A}
 .setup-card button{width:100%;background:#03C75A;color:white;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer}
-/* ── 메인 */
 .main{display:none;flex-direction:column;min-height:100vh}
 .topbar{background:linear-gradient(135deg,#03C75A,#00a84c);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
 .topbar h1{font-size:16px;font-weight:700}
@@ -33,7 +30,6 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min
 .topbar-right{display:flex;gap:10px;align-items:center}
 .refresh-btn,.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
 .container{padding:18px 24px;flex:1}
-/* ── 필터 */
 .filter-row{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
 .filter-row input,.filter-row select{border:1.5px solid #e0e0e0;border-radius:7px;padding:7px 10px;font-size:12.5px;font-family:inherit;background:white}
 .filter-row input:focus,.filter-row select:focus{outline:none;border-color:#03C75A}
@@ -42,16 +38,13 @@ body{font-family:-apple-system,'Malgun Gothic',sans-serif;background:#f0f2f5;min
 .copy-btn{background:#5c6bc0;color:white;border:none;border-radius:7px;padding:8px 18px;font-size:12.5px;font-weight:700;cursor:pointer}
 .copy-btn:hover{background:#3949ab}
 .copy-btn.copied{background:#43a047}
-/* ── 카드 */
 .card{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
 .card-header{padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
 .card-header .cnt{font-size:12px;color:#888}
-/* ── 테이블 */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;min-width:700px}
 th{background:#f8f9fa;font-size:10.5px;font-weight:700;color:#555;padding:8px 10px;text-align:left;border-bottom:2px solid #eee;white-space:nowrap;cursor:pointer;user-select:none}
 th:hover{background:#e8f5e9;color:#00a84c}
-th.sorted{color:#03C75A}
 td{padding:8px 10px;font-size:12px;border-bottom:1px solid #f5f5f5;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
 tr:hover td{background:#f0fdf4}
 tr:last-child td{border-bottom:none}
@@ -61,7 +54,6 @@ tr:last-child td{border-bottom:none}
 .loading{text-align:center;padding:40px;color:#aaa;font-size:14px}
 .empty{text-align:center;padding:40px;color:#ccc;font-size:13px}
 .detail-btn{background:#e8f5e9;border:none;color:#2e7d32;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer}
-/* ── 상세 모달 */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center}
 .modal-bg.open{display:flex}
 .modal{background:white;border-radius:14px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25)}
@@ -76,7 +68,6 @@ tr:last-child td{border-bottom:none}
 </head>
 <body>
 
-<!-- 비밀번호 화면 -->
 <div class="pw-screen" id="pwScreen">
   <div class="pw-card">
     <div style="font-size:36px;margin-bottom:12px">🔒</div>
@@ -88,7 +79,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- GitHub 토큰 설정 화면 -->
 <div class="setup-screen" id="setupScreen">
   <div class="setup-card">
     <div style="font-size:32px;margin-bottom:12px">⚙️</div>
@@ -99,7 +89,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- 상세 모달 -->
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-header">
@@ -110,7 +99,6 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- 메인 -->
 <div class="main" id="mainView">
   <div class="topbar">
     <div>
@@ -173,14 +161,10 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <script>
-// ═══════════════════════════════════
-// ⚙️  설정
-// ═══════════════════════════════════
 const ADMIN_PASSWORD = 'basic1579@';
 const GITHUB_OWNER   = 'jinseok-kim1';
 const GITHUB_REPO    = 'form_submissions';
 const API_BASE       = 'https://api.github.com';
-// ═══════════════════════════════════
 
 let ghToken = '';
 let bidData = [];
@@ -325,7 +309,6 @@ function showDetail(r){
 }
 function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
 
-// ── 엑셀 붙여넣기용 복사 (탭 구분 TSV)
 function copyToClipboard(){
   const headers = ['NO','노출희망일','프로모션일정','영역','우선순위','사업부팀','담당자명','단일브랜드행사','브랜드명+타이틀','예상목표거래액(원)','비고','제출시각'];
   const rows = filteredRows.map((r,i)=>[
@@ -369,7 +352,6 @@ function fallbackCopy(text, cb){
   document.body.removeChild(ta);
 }
 
-// ── 엑셀 다운로드
 function exportBid(){
   const headers=['NO','노출희망일','프로모션일정','영역','우선순위','사업부팀','담당자명','단일브랜드행사','브랜드명+타이틀','예상목표거래액','비고','제출시각'];
   const wsData = [headers, ...filteredRows.map((r,i)=>[
