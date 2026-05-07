@@ -119,8 +119,8 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
         </div>
       </div>
       <div class="field">
-        <label>우선 순위 <span class="req">*</span> <span class="hint">빈칸 제출 불가 — 미입력 시 취합X</span></label>
-        <input type="number" id="priority" min="1" max="10" placeholder="취합X — 숫자를 입력해주세요 (1~10)" style="background:#f7f7f7;color:#999" required>
+        <label>우선 순위 <span class="hint">선택사항 (1~10)</span></label>
+        <input type="number" id="priority" min="1" max="10" placeholder="숫자를 입력해주세요 (1~10)" style="background:#f7f7f7;color:#999">
       </div>
     </div>
 
@@ -142,7 +142,7 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
       <div class="field">
         <label>예상 목표 거래액 <span class="req">*</span> <span class="hint">숫자만 입력 (원)</span></label>
         <div class="amount-wrap">
-          <input type="number" id="targetAmount" min="0" step="1000000" placeholder="100000000" required>
+          <input type="number" id="targetAmount" min="0" placeholder="예: 100000000" required>
           <span>원</span>
         </div>
       </div>
@@ -171,11 +171,15 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
 <p style="margin-top:16px;font-size:11px;color:#bbb">본 페이지는 담당 MD만 접근 가능한 내부 취합 시스템입니다.</p>
 
 <script>
+// ═══════════════════════════════════════════════════
+// ⚙️  설정 — 아래 토큰을 발급받은 PAT로 교체하세요
+// ═══════════════════════════════════════════════════
 const GITHUB_TOKEN  = window.location.hash.slice(1) || '';
 const GITHUB_OWNER  = 'jinseok-kim1';
 const GITHUB_REPO   = 'form_submissions';
 const ISSUE_LABEL   = '비딩신청';
 const API_BASE      = 'https://api.github.com';
+// ═══════════════════════════════════════════════════
 
 if(GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN_HERE'){
   document.getElementById('tokenNotice').style.display = 'block';
@@ -198,7 +202,6 @@ document.getElementById('promoAny').addEventListener('change',function(){
   if(this.checked){s.value='2026-06-01';e.value='2026-06-30';s.disabled=true;e.disabled=true;}
   else{s.disabled=false;e.disabled=false;}
 });
-
 function fmtDate(v){
   if(!v) return '';
   const [y,m,d] = v.split('-');
@@ -255,6 +258,7 @@ document.getElementById('bidForm').addEventListener('submit', async function(e){
   ].join('\n');
 
   try {
+    // 라벨 자동 생성 (없으면)
     await fetch(`${API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/labels`, {
       method:'POST',
       headers:{'Authorization':'token '+GITHUB_TOKEN,'Content-Type':'application/json'},
