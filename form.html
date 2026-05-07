@@ -78,12 +78,15 @@ textarea{resize:vertical;min-height:72px;line-height:1.6}
         </label>
       </div>
       <div class="field">
-        <label>프로모션 전체 일정 <span class="req">*</span></label>
+        <label>프로모션 전체 일정 <span class="req">*</span> <span class="hint">날짜 선택 필수 · 일자 무관 시 아래 체크</span></label>
         <div class="date-row">
           <input type="date" id="promoStart" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
           <span>~</span>
           <input type="date" id="promoEnd" min="2026-06-01" max="2026-06-30" value="2026-06-01" required>
         </div>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:#888;font-weight:400;cursor:pointer">
+          <input type="checkbox" id="promoAny" style="width:auto;margin:0"> 일자 무관 — 전체 일정(6/1~6/30) 선택
+        </label>
       </div>
     </div>
 
@@ -186,6 +189,12 @@ function getRadio(name){
 document.getElementById('exposeAny').addEventListener('change',function(){
   const s=document.getElementById('exposeStart');
   const e=document.getElementById('exposeEnd');
+  if(this.checked){s.value='2026-06-01';e.value='2026-06-30';s.disabled=true;e.disabled=true;}
+  else{s.disabled=false;e.disabled=false;}
+});
+document.getElementById('promoAny').addEventListener('change',function(){
+  const s=document.getElementById('promoStart');
+  const e=document.getElementById('promoEnd');
   if(this.checked){s.value='2026-06-01';e.value='2026-06-30';s.disabled=true;e.disabled=true;}
   else{s.disabled=false;e.disabled=false;}
 });
